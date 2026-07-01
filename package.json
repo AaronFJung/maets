@@ -1,0 +1,13 @@
+{
+	"name": "maets-root",
+	"version": "0.1.0",
+	"private": true,
+	"scripts": {
+		"lint": "biome lint .",
+		"format": "biome format --write .",
+		"check": "biome check ."
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.5.1"
+	}
+}

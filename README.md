@@ -24,12 +24,11 @@ This repository currently contains the project's development environment and ini
 
 1. Clone the repository.
 2. Open it in VS Code.
-3. Run **Dev Containers: Reopen in Container**
-4. Once the container finishes building, start the frontend using the **Start Frontend** VS Code task (`Terminal → Run Task → Start Frontend`), or run:
+3. Run **Dev Containers: Reopen in Container**.
 
-Open **http://localhost:3000** in your browser.
+The container starts Supabase and the Next.js dev server for you and opens the app and Supabase Studio in your browser. The first build takes a few minutes while Docker pulls the Supabase images.
 
-> Run all `npm` commands from inside the development container. The container manages its own Linux environment, ensuring everyone develops against the same dependencies.
+> Run all `npm` commands from inside the development container, and use the **Run Task** menu (`Terminal → Run Task`) to start or stop services manually.
 
 ## Development
 

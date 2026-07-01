@@ -1,13 +1,18 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# 1. next/node_modules and next/.next are container-only Docker volumes (see devcontainer.json)
-#    so the Linux container never shares them with the Windows host. Fresh volumes are
-#    created root-owned, so hand them to the 'node' user before installing.
-sudo chown node:node next/node_modules next/.next
+# volumes (see devcontainer.json) so the Linux container
+#    never shares them with the Windows host. Fresh volumes are created root-owned,
+#    so hand them to the 'node' user before installing. 1. node_modules (root Biome tooling), next/node_modules, and next/.next are
+#    container-only Docker
+sudo chown node:node node_modules next/node_modules next/.next
 
-# 2. Install the Next.js app's dependencies. `npm ci` does a clean, exact install
-#    from the committed package-lock.json, so every teammate gets identical deps.
+# 2. Install the root dev tooling (Biome, which the editor uses to format the whole
+#    repo). `npm ci` does a clean, exact install from the committed package-lock.json.
+npm ci
+
+# 3. Install the Next.js app's dependencies the same way, so every teammate gets
+#    identical deps.
 cd ./next
 npm ci
 cd ..

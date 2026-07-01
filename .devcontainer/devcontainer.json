@@ -5,6 +5,7 @@
 	},
 	"mounts": [
 		// These overlay mounts are required because npm packages are platform dependent when installed and .next is too.
+		"source=maets-node-modules,target=${containerWorkspaceFolder}/node_modules,type=volume",
 		"source=maets-next-node-modules,target=${containerWorkspaceFolder}/next/node_modules,type=volume",
 		"source=maets-next-build,target=${containerWorkspaceFolder}/next/.next,type=volume",
 		"source=maets-docker-data,target=/var/lib/docker,type=volume"

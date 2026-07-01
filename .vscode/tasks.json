@@ -18,6 +18,22 @@
 			}
 		},
 		{
+			"label": "Start Supabase",
+			"detail": "Runs Supabase through the Supabase CLI",
+			"type": "shell",
+			"command": "supabase start",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"isBackground": true,
+			"problemMatcher": [],
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"group": "maets"
+			}
+		},
+		{
 			"label": "Supabase Status",
 			"detail": "Show local Supabase URLs and keys",
 			"type": "shell",

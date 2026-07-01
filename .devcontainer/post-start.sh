@@ -1,25 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-print_access_message() {
-  echo ""
-  echo "============================================================"
-  echo "  Supabase is running and available at:"
-  echo "    Studio (web portal):  http://localhost:54323"
-  echo "    API:                  http://localhost:54321"
-  echo "    Web app:              http://localhost:3000  (run "Start Frontend" task)"
-  echo ""
-  echo "  Run 'supabase status' for keys."
-  echo "============================================================"
-}
-
-# Idempotent: `supabase status` exits 0 only when the stack is already up.
-if supabase status >/dev/null 2>&1; then
-  echo "Supabase is already running."
-  print_access_message
-  exit 0
-fi
-
-echo "Starting Supabase (first run pulls several Docker images and can take a few minutes)..."
+# Start the local Supabase stack (blocks until healthy, then returns).
+# Studio: http://localhost:54323  API: http://localhost:54321
 supabase start
-print_access_message
+
+# Auto-open Supabase Studio. Its port is published by docker-in-docker, so
+# VS Code's onAutoForward:openBrowser doesn't reliably fire for it the way it
+# does for the Next.js process. $BROWSER is a helper VS Code injects inside dev
+# containers that opens the URL on the host; fall back to a no-op if unset.
+"${BROWSER:-true}" http://localhost:54323 >/dev/null 2>&1 || true
+
+# Start the Next.js dev server in the foreground so its logs stream here.
+# App: http://localhost:3000  (VS Code auto-forwards + opens it)
+cd next
+npm run dev
