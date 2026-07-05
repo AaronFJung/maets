@@ -1,10 +1,9 @@
 "use client";
 
 import { createClient } from "@/lib/supabase/client";
+import type { RealtimeChannel } from "@supabase/supabase-js";
 import { useCallback, useEffect, useRef, useState } from "react";
 import z from "zod";
-
-const supabase = createClient();
 
 const ChatMessageSchema = z.object({
     from: z.string(),
@@ -32,13 +31,12 @@ export default function useChat({
     username: string;
 }) {
     const [messages, setMessages] = useState<ReceivedChatMessage[]>([]);
-    const channelRef = useRef<ReturnType<
-        typeof supabase.realtime.channel
-    > | null>(null);
+    const channelRef = useRef<RealtimeChannel | null>(null);
 
     useEffect(() => {
         if (username.length === 0) return;
 
+        const supabase = createClient();
         const channel = supabase.realtime.channel(channelName, {
             config: {
                 broadcast: {
