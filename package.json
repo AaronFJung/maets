@@ -1,11 +1,18 @@
 {
 	"name": "maets-root",
-	"version": "0.1.0",
+	"version": "0.0.0",
 	"private": true,
 	"scripts": {
 		"lint": "biome lint .",
 		"format": "biome format --write .",
-		"check": "biome check ."
+		"check": "biome check .",
+		"preversion": "npm run lint",
+		"postversion": "git push --follow-tags",
+		"release:preminor": "npm version preminor --preid=alpha",
+		"release:alpha": "npm version prerelease --preid=alpha",
+		"release:beta": "npm version prerelease --preid=beta",
+		"release:rc": "npm version prerelease --preid=rc",
+		"release:finalize": "npm version patch"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.5.2"
