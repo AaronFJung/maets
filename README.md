@@ -1,7 +1,6 @@
 # Maets
 
-
-![Maets is a turn-based gaming platform built for the Ivy Tech SDEV program.](next\public\banner.png)
+![Maets is a turn-based gaming platform built for the Ivy Tech SDEV program.](next/public/banner.png)
 
 This repository currently contains the project's development environment and initial structure. Game functionality has not been implemented yet.
 
