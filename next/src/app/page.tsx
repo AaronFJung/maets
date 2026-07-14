@@ -1,5 +1,3 @@
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
 
 export default function Home() {
 	return (
@@ -10,9 +8,6 @@ export default function Home() {
 			<p className="text-lg text-muted-foreground sm:text-xl">
 				A turn-based gaming platform built for Ivy Tech SDEV 265.
 			</p>
-			<Link href="https://gsithub.com/AaronFJung/maets">
-				<Button variant={"link"}>Source Code</Button>
-			</Link>
 		</main>
 	);
 }
