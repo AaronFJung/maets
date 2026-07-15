@@ -10,7 +10,7 @@
 		"format": "biome format --write ."
 	},
 	"dependencies": {
-		"@supabase/ssr": "^0.12.1",
+		"@supabase/ssr": "^0.12.3",
 		"@supabase/supabase-js": "^2.110.3",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
