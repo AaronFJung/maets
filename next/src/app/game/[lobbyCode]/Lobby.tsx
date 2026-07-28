@@ -1,10 +1,15 @@
 "use client";
 
+import {
+	AlertTriangle,
+	Gamepad2Icon,
+	UserIcon,
+	UserRoundCheckIcon,
+	UsersIcon,
+} from "lucide-react";
 import { PageTitle } from "@/components/page-title";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
 	Item,
 	ItemContent,
@@ -13,18 +18,10 @@ import {
 	ItemTitle,
 } from "@/components/ui/item";
 import { Spinner } from "@/components/ui/spinner";
-import useLocalPlayerId from "@/hooks/useLocalPlayerId";
-import useLocalPlayerUsername from "@/hooks/useLocalPlayerUsername";
+import useProfile from "@/hooks/useProfile";
 import { GAMES } from "@/lib/games";
+import { initials } from "@/lib/initials";
 import { useLobby } from "@/lib/maets-realtime/maets-realtime";
-import {
-	AlertTriangle,
-	Gamepad2Icon,
-	UserIcon,
-	UserRoundCheckIcon,
-	UsersIcon,
-} from "lucide-react";
-import { useState } from "react";
 
 export default function Lobby({
 	lobbyCode,
@@ -33,52 +30,25 @@ export default function Lobby({
 	lobbyCode: string;
 	hostGameId?: string;
 }) {
-	const localPlayerId = useLocalPlayerId();
+	const { profile, loading } = useProfile();
 
 	const hostGameName = hostGameId
 		? (GAMES.find((game) => game.id === hostGameId)?.name ?? hostGameId)
 		: undefined;
 
-	const {
-		playerUsername: localPlayerUsername,
-		setPlayerUsername: setLocalPlayerUsername,
-	} = useLocalPlayerUsername();
-
-	const [usernameDraft, setUsernameDraft] = useState("");
-
 	const { status, members, host } = useLobby({
 		lobbyCode,
-		playerId: localPlayerId,
-		username: localPlayerUsername,
+		playerId: profile?.userId,
+		username: profile?.username,
+		avatarUrl: profile?.avatarUrl ?? undefined,
 	});
 
-	if (!localPlayerUsername || localPlayerUsername.length === 0) {
-		const submitUsername = () => {
-			const trimmed = usernameDraft.trim();
-			if (trimmed.length === 0) return;
-			setLocalPlayerUsername(trimmed);
-		};
-
+	if (loading || !profile) {
 		return (
-			<>
-				<PageTitle>Make your Profile</PageTitle>
-
-				<FieldGroup>
-					<Field>
-						<FieldLabel>Username</FieldLabel>
-						<Input
-							value={usernameDraft}
-							onChange={(e) => setUsernameDraft(e.target.value)}
-							onKeyDown={(e) => {
-								if (e.key === "Enter") submitUsername();
-							}}
-						/>
-					</Field>
-					<Button type="submit" onClick={submitUsername}>
-						Join
-					</Button>
-				</FieldGroup>
-			</>
+			<PageTitle>
+				Loading
+				<Spinner data-icon="inline-start" />
+			</PageTitle>
 		);
 	}
 
@@ -116,7 +86,7 @@ export default function Lobby({
 							<ItemContent>
 								<ItemTitle>Username</ItemTitle>
 								<ItemDescription>
-									{localPlayerUsername}
+									{profile.username}
 								</ItemDescription>
 							</ItemContent>
 						</Item>
@@ -154,7 +124,33 @@ export default function Lobby({
 							<ItemContent>
 								<ItemTitle>Members</ItemTitle>
 								<ItemDescription>
-									{members.map((m) => m.username).join(", ")}
+									<div className="flex flex-wrap gap-2 pt-1">
+										{members.map((member) => (
+											<span
+												key={member.playerId}
+												className="flex items-center gap-1.5"
+											>
+												<Avatar size="sm">
+													{member.avatarUrl && (
+														<AvatarImage
+															src={
+																member.avatarUrl
+															}
+															alt={
+																member.username
+															}
+														/>
+													)}
+													<AvatarFallback>
+														{initials(
+															member.username,
+														)}
+													</AvatarFallback>
+												</Avatar>
+												{member.username}
+											</span>
+										))}
+									</div>
 								</ItemDescription>
 							</ItemContent>
 						</Item>

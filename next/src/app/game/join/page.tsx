@@ -1,5 +1,8 @@
 "use client";
 
+import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
+import { useRouter } from "next/navigation";
+import { type SubmitEvent, useEffect, useState } from "react";
 import { PageTitle } from "@/components/page-title";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,12 +18,9 @@ import {
 	InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { Spinner } from "@/components/ui/spinner";
-import useLocalPlayerId from "@/hooks/useLocalPlayerId";
+import useProfile from "@/hooks/useProfile";
 import { CODE_LENGTH } from "@/lib/maets-realtime/lobby-code";
 import { useLobby } from "@/lib/maets-realtime/maets-realtime";
-import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
-import { useRouter } from "next/navigation";
-import { type SubmitEvent, useEffect, useState } from "react";
 
 // presence takes a beat to sync, so a live lobby looks empty right after
 // subscribing; only call a code dead once it has stayed empty this long
@@ -36,7 +36,8 @@ export default function Page() {
 	const [notFound, setNotFound] = useState("");
 
 	const router = useRouter();
-	const playerId = useLocalPlayerId();
+	const { profile } = useProfile();
+	const playerId = profile?.userId;
 
 	const isComplete = code.length === CODE_LENGTH;
 	const isChecking = probeCode.length > 0;

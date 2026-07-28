@@ -1,40 +1,68 @@
-"use client";
-
-import useLocalPlayerUsername from "@/hooks/useLocalPlayerUsername";
 import { UserIcon } from "lucide-react";
-import { Avatar, AvatarFallback } from "./ui/avatar";
+import Link from "next/link";
+import { logout } from "@/app/(auth)/actions";
+import { getProfile } from "@/lib/auth/dal";
+import { initials } from "@/lib/initials";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { Button } from "./ui/button";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 
-function initials(username: string) {
-    return username
-        .trim()
-        .split(/\s+/)
-        .slice(0, 2)
-        .map((part) => part[0] ?? "")
-        .join("")
-        .toUpperCase();
-}
+export default async function NavigationProfileCard() {
+	const profile = await getProfile();
 
-export default function NavigationProfileCard() {
-    const { playerUsername } = useLocalPlayerUsername();
+	if (!profile) {
+		return (
+			<Button asChild variant="outline" size="sm">
+				<Link href="/login">Log in</Link>
+			</Button>
+		);
+	}
 
-    if (!playerUsername) return null;
+	const short = initials(profile.username);
 
-    const short = initials(playerUsername);
+	return (
+		<DropdownMenu>
+			<DropdownMenuTrigger className="flex items-center gap-2 rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/50">
+				<Avatar>
+					{profile.avatarUrl && (
+						<AvatarImage
+							src={profile.avatarUrl}
+							alt={profile.username}
+						/>
+					)}
+					<AvatarFallback>
+						{short || <UserIcon className="size-4" />}
+					</AvatarFallback>
+				</Avatar>
 
-    return (
-        <div className="flex items-center gap-2">
-            <Avatar>
-                <AvatarFallback>
-                    {short || <UserIcon className="size-2" />}
-                </AvatarFallback>
-            </Avatar>
+				<span className="hidden max-w-32 truncate font-medium text-sm sm:block">
+					{profile.username}
+				</span>
+			</DropdownMenuTrigger>
 
-            <p
-                title={playerUsername}
-                className="hidden max-w-32 truncate font-medium text-sm sm:block"
-            >
-                {playerUsername}
-            </p>
-        </div>
-    );
+			<DropdownMenuContent align="end">
+				<DropdownMenuLabel className="truncate">
+					{profile.username}
+				</DropdownMenuLabel>
+				<DropdownMenuSeparator />
+				<DropdownMenuItem asChild>
+					<Link href="/account">Account</Link>
+				</DropdownMenuItem>
+				<form action={logout}>
+					<DropdownMenuItem asChild>
+						<button type="submit" className="w-full">
+							Log out
+						</button>
+					</DropdownMenuItem>
+				</form>
+			</DropdownMenuContent>
+		</DropdownMenu>
+	);
 }

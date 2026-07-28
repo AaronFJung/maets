@@ -1,9 +1,9 @@
 "use client";
 
-import { createClient } from "@/lib/supabase/client";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 import { useCallback, useEffect, useRef, useState } from "react";
 import z from "zod";
+import { createClient } from "@/lib/supabase/client";
 
 export const PROTOCOL_VERSION = 1;
 export const CHANNEL_PREFIX = "maets:v1:match:";
@@ -15,6 +15,7 @@ export function lobbyChannelName(code: string) {
 const LobbyPresenceSchema = z.object({
 	playerId: z.string(),
 	username: z.string(),
+	avatarUrl: z.string().optional(),
 	joinedAt: z.number(),
 	v: z.number(),
 });
@@ -37,10 +38,12 @@ export function useLobby({
 	lobbyCode,
 	playerId,
 	username,
+	avatarUrl,
 }: {
 	lobbyCode: string;
 	playerId?: string;
 	username?: string;
+	avatarUrl?: string;
 }) {
 	const [members, setMembers] = useState<LobbyMember[]>([]);
 	const [status, setStatus] = useState<LobbyStatus>("connecting");
@@ -105,6 +108,7 @@ export function useLobby({
 				const presence: LobbyPresence = {
 					playerId,
 					username,
+					avatarUrl,
 					joinedAt,
 					v: PROTOCOL_VERSION,
 				};
@@ -129,7 +133,7 @@ export function useLobby({
 			setError(undefined);
 			setStatus("connecting");
 		};
-	}, [lobbyCode, playerId, username]);
+	}, [lobbyCode, playerId, username, avatarUrl]);
 
 	const leave = useCallback(() => {
 		channelRef.current?.unsubscribe();

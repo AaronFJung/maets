@@ -124,6 +124,14 @@ file_size_limit = "50MiB"
 # allowed_mime_types = ["image/png", "image/jpeg"]
 # objects_path = "./images"
 
+# Profile pictures. Public read (avatars render via plain URLs); writes are
+# restricted per-user by RLS on storage.objects (see migrations) and only ever
+# performed by the updateProfile server action.
+[storage.buckets.avatars]
+public = true
+file_size_limit = "5MiB"
+allowed_mime_types = ["image/png", "image/jpeg", "image/webp", "image/gif"]
+
 # Allow connections via S3 compatible clients
 [storage.s3_protocol]
 enabled = true

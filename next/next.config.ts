@@ -8,6 +8,9 @@ const nextConfig: NextConfig = {
 	// up and finds the workspace-root package-lock.json, which would nest the
 	// bundle at `.next/standalone/next/server.js` and break the Dockerfile COPY.
 	outputFileTracingRoot: __dirname,
+	// sharp has native binaries; keep it external so it isn't bundled and its
+	// platform-specific binaries are traced into the standalone output.
+	serverExternalPackages: ["sharp"],
 	turbopack: {
 		// Needed because there is also a package-lock.json at the workspace root
 		// (for Biome), which confuses Turbopack's auto-detection of the project root.
