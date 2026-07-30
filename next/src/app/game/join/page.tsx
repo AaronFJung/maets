@@ -1,8 +1,6 @@
 "use client";
 
-import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
-import { useRouter } from "next/navigation";
-import { type SubmitEvent, useEffect, useState } from "react";
+import { CenteredContent } from "@/components/centered-content";
 import { PageTitle } from "@/components/page-title";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,6 +19,10 @@ import { Spinner } from "@/components/ui/spinner";
 import useProfile from "@/hooks/useProfile";
 import { CODE_LENGTH } from "@/lib/maets-realtime/lobby-code";
 import { useLobby } from "@/lib/maets-realtime/maets-realtime";
+import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
+import { AnimatePresence, motion } from "motion/react";
+import { useRouter } from "next/navigation";
+import { type SubmitEvent, useEffect, useState } from "react";
 
 // presence takes a beat to sync, so a live lobby looks empty right after
 // subscribing; only call a code dead once it has stayed empty this long
@@ -89,58 +91,102 @@ export default function Page() {
 	}
 
 	return (
-		<div className="w-full max-w-sm">
-			<PageTitle>Join a Game</PageTitle>
+		<CenteredContent>
+			<div className="w-full max-w-sm">
+				<PageTitle>Join a Game</PageTitle>
 
-			<form onSubmit={handleSubmit}>
-				<FieldGroup>
-					<Field data-invalid={message}>
-						<FieldLabel htmlFor="lobby-code">Lobby Code</FieldLabel>
-						<FieldDescription>
-							Enter the {CODE_LENGTH}-character code from your
-							host.
-						</FieldDescription>
-						<InputOTP
-							id="lobby-code"
-							maxLength={CODE_LENGTH}
-							pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
-							value={code}
-							disabled={isChecking}
-							onChange={(value) => {
-								setNotFound("");
-								setCode(value.toUpperCase());
-							}}
-							onComplete={(value: string) =>
-								joinLobby(value.toUpperCase())
-							}
-						>
-							<InputOTPGroup>
-								<InputOTPSlot index={0} />
-								<InputOTPSlot index={1} />
-								<InputOTPSlot index={2} />
-								<InputOTPSlot index={3} />
-							</InputOTPGroup>
-						</InputOTP>
-						{message && <FieldError>{message}</FieldError>}
-					</Field>
+				<form onSubmit={handleSubmit}>
+					<FieldGroup>
+						<Field data-invalid={message}>
+							<FieldLabel htmlFor="lobby-code">
+								Lobby Code
+							</FieldLabel>
+							<FieldDescription>
+								Enter the {CODE_LENGTH}-character code from your
+								host.
+							</FieldDescription>
+							<InputOTP
+								id="lobby-code"
+								maxLength={CODE_LENGTH}
+								pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
+								value={code}
+								disabled={isChecking}
+								onChange={(value) => {
+									setNotFound("");
+									setCode(value.toUpperCase());
+								}}
+								onComplete={(value: string) =>
+									joinLobby(value.toUpperCase())
+								}
+							>
+								<InputOTPGroup>
+									<InputOTPSlot index={0} />
+									<InputOTPSlot index={1} />
+									<InputOTPSlot index={2} />
+									<InputOTPSlot index={3} />
+									<InputOTPSlot index={4} />
+									<InputOTPSlot index={5} />
+								</InputOTPGroup>
+							</InputOTP>
+							<AnimatePresence>
+								{message && (
+									<motion.div
+										initial={{
+											opacity: 0,
+											y: -6,
+											height: 0,
+										}}
+										animate={{
+											opacity: 1,
+											y: 0,
+											height: "auto",
+										}}
+										exit={{ opacity: 0, y: -6, height: 0 }}
+										transition={{
+											duration: 0.18,
+											ease: "easeOut",
+										}}
+									>
+										<FieldError>{message}</FieldError>
+									</motion.div>
+								)}
+							</AnimatePresence>
+						</Field>
 
-					<Field orientation="horizontal">
-						<Button
-							type="submit"
-							disabled={!isComplete || isChecking || !playerId}
-						>
-							{isChecking ? (
-								<>
-									Joining
-									<Spinner data-icon="inline-start" />
-								</>
-							) : (
-								"Join"
-							)}
-						</Button>
-					</Field>
-				</FieldGroup>
-			</form>
-		</div>
+						<Field orientation="horizontal">
+							<Button
+								type="submit"
+								disabled={
+									!isComplete || isChecking || !playerId
+								}
+							>
+								<AnimatePresence mode="wait" initial={false}>
+									<motion.span
+										key={isChecking ? "checking" : "join"}
+										className="inline-flex items-center gap-1.5"
+										initial={{ opacity: 0, y: -6 }}
+										animate={{ opacity: 1, y: 0 }}
+										exit={{ opacity: 0, y: 6 }}
+										transition={{
+											duration: 0.18,
+											ease: "easeOut",
+										}}
+									>
+										{isChecking ? (
+											<>
+												Joining
+												<Spinner data-icon="inline-start" />
+											</>
+										) : (
+											"Join"
+										)}
+									</motion.span>
+								</AnimatePresence>
+							</Button>
+						</Field>
+					</FieldGroup>
+				</form>
+			</div>
+		</CenteredContent>
 	);
 }

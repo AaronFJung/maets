@@ -1,11 +1,21 @@
 "use client";
 
+import { Gamepad2Icon, Grid3X3Icon, type LucideIcon } from "lucide-react";
+import { motion } from "motion/react";
+import { useRouter } from "next/navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Game } from "@/lib/games";
 import { generateLobbyCode } from "@/lib/maets-realtime/lobby-code";
-import { useRouter } from "next/navigation";
+
+// No per-game artwork exists yet — an icon per game id, falling back to a
+// generic one, reads as a finished tile instead of an empty placeholder box.
+const GAME_ICONS: Record<string, LucideIcon> = {
+	"tic-tac-toe": Grid3X3Icon,
+};
 
 export function HostGameCard({ game }: { game: Game }) {
 	const router = useRouter();
+	const Icon = GAME_ICONS[game.id] ?? Gamepad2Icon;
 
 	function hostGame() {
 		// the chosen game rides along as a query param until game selection
@@ -14,14 +24,26 @@ export function HostGameCard({ game }: { game: Game }) {
 	}
 
 	return (
-		<button
+		<motion.button
 			type="button"
 			onClick={hostGame}
-			className="group flex flex-col gap-3 rounded-lg border p-3 text-left transition-colors hover:bg-muted"
+			className="block w-full text-left"
+			whileHover={{ y: -3 }}
+			whileTap={{ scale: 0.97 }}
+			transition={{ duration: 0.18, ease: "easeOut" }}
 		>
-			<span className="font-serif font-medium">{game.name}</span>
-			{/* Placeholder for the game's artwork */}
-			<div className="aspect-square w-full rounded-md bg-muted transition-colors group-hover:bg-background" />
-		</button>
+			<Card className="transition-shadow hover:shadow-md hover:ring-primary/40">
+				<CardContent>
+					<div className="flex aspect-square items-center justify-center rounded-lg bg-muted">
+						<Icon className="size-12 text-muted-foreground" />
+					</div>
+				</CardContent>
+				<CardHeader>
+					<CardTitle className="text-center font-serif">
+						{game.name}
+					</CardTitle>
+				</CardHeader>
+			</Card>
+		</motion.button>
 	);
 }

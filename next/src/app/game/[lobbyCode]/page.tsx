@@ -1,4 +1,4 @@
-import Lobby from "./Lobby";
+import MatchRoom from "./match-room";
 
 export default async function Page({
 	params,
@@ -13,5 +13,5 @@ export default async function Page({
 	// a repeated ?game= yields an array; only a single value is meaningful
 	const hostGameId = typeof game === "string" ? game : undefined;
 
-	return <Lobby lobbyCode={lobbyCode} hostGameId={hostGameId} />;
+	return <MatchRoom lobbyCode={lobbyCode} hostGameId={hostGameId} />;
 }

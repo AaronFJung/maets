@@ -1,7 +1,7 @@
+import { CenteredContent } from "@/components/centered-content";
 import { MobileNav } from "@/components/mobile-nav";
 import NavigationProfileCard from "@/components/nav-profile-card";
 import { ThemeProvider } from "@/components/theme-provider";
-import { ThemeToggle } from "@/components/theme-toggle";
 import {
 	NavigationMenu,
 	NavigationMenuItem,
@@ -46,7 +46,6 @@ export default function RootLayout({
 	return (
 		<html
 			lang="en"
-			suppressHydrationWarning
 			className={`${montserrat.variable} ${merriweather.variable} ${ubuntuMono.variable} h-full antialiased`}
 		>
 			<body className="min-h-full flex flex-col">
@@ -56,11 +55,15 @@ export default function RootLayout({
 					enableSystem
 					disableTransitionOnChange
 				>
-					<Navigation />
+					<div className="bg-accent">
+						<CenteredContent>
+							<Navigation />
+						</CenteredContent>
+					</div>
 
 					<Separator />
 
-					<div className="flex flex-1 flex-col px-6">{children}</div>
+					<div className="flex flex-1 flex-col">{children}</div>
 				</ThemeProvider>
 			</body>
 		</html>
@@ -69,11 +72,11 @@ export default function RootLayout({
 
 function Navigation() {
 	return (
-		<header className="flex items-center justify-between py-4 px-6">
+		<header className="flex items-center justify-between py-4 bg-accent">
 			<div className="flex items-center gap-2.5">
 				<Link
 					href="/"
-					className="text-xl font-bold tracking-tight transition-colors hover:text-primary"
+					className="text-xl font-bold tracking-tight transition-colors hover:text-primary text-accent-foreground"
 				>
 					Maets
 				</Link>
@@ -86,23 +89,27 @@ function Navigation() {
 									asChild
 									className={navigationMenuTriggerStyle()}
 								>
-									<Link href={link.href}>{link.label}</Link>
+									<Link
+										href={link.href}
+										className="text-accent-foreground"
+									>
+										<link.icon className="size-4" />
+										{link.label}
+									</Link>
 								</NavigationMenuLink>
 							</NavigationMenuItem>
 						))}
 					</NavigationMenuList>
 				</NavigationMenu>
+
+				{/* <SettingsMenu /> */}
 			</div>
 
 			<div className="flex items-center gap-2">
-
 				<Suspense>
-
 					<NavigationProfileCard />
-
 				</Suspense>
 
-				<ThemeToggle />
 				<MobileNav />
 			</div>
 		</header>

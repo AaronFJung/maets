@@ -1,5 +1,8 @@
 "use client";
 
+import { MenuIcon } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	Sheet,
@@ -9,9 +12,6 @@ import {
 	SheetTrigger,
 } from "@/components/ui/sheet";
 import { NAV_LINKS } from "@/lib/nav-links";
-import { MenuIcon } from "lucide-react";
-import Link from "next/link";
-import { useState } from "react";
 
 export function MobileNav() {
 	const [open, setOpen] = useState(false);
@@ -35,8 +35,9 @@ export function MobileNav() {
 							key={link.href}
 							href={link.href}
 							onClick={() => setOpen(false)}
-							className="rounded-lg px-2.5 py-2 font-medium text-sm transition-colors hover:bg-muted"
+							className="flex items-center gap-2 rounded-lg px-2.5 py-2 font-medium text-sm transition-colors hover:bg-muted"
 						>
+							<link.icon className="size-4" />
 							{link.label}
 						</Link>
 					))}
