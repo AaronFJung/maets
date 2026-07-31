@@ -3,7 +3,10 @@ export type Game = {
 	name: string;
 };
 
-export const GAMES: Game[] = [{ id: "tic-tac-toe", name: "Tic Tac Toe" }];
+export const GAMES: Game[] = [
+	{ id: "tic-tac-toe", name: "Tic Tac Toe" },
+	{ id: "ultimate-tic-tac-toe", name: "Ultimate Tic Tac Toe" },
+];
 
 /** Display name for a game id, falling back to the id itself so a game this
  * build doesn't know about still renders something readable. */

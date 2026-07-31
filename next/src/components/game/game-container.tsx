@@ -1,9 +1,11 @@
 import type { MatchView } from "@/components/game/match-view";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { GameResult } from "@maets/game-sync";
-import { PauseIcon } from "lucide-react";
+import { HomeIcon, PauseIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
+import Link from "next/link";
 import type React from "react";
 
 export type GameShellProps = {
@@ -12,6 +14,7 @@ export type GameShellProps = {
 	result?: React.ReactNode;
 	actions?: React.ReactNode;
 	dimmed?: boolean;
+	wide?: boolean;
 	asideStart?: React.ReactNode;
 	asideEnd?: React.ReactNode;
 	footer?: React.ReactNode;
@@ -24,6 +27,7 @@ export function GameContainer({
 	result,
 	actions,
 	dimmed,
+	wide,
 	asideStart,
 	asideEnd,
 	footer,
@@ -35,7 +39,7 @@ export function GameContainer({
 		<div
 			className={cn(
 				"mx-auto w-full",
-				hasAsides ? "max-w-lg" : "max-w-sm",
+				hasAsides || wide ? "max-w-lg" : "max-w-sm",
 			)}
 		>
 			<div className="mb-6 flex flex-col items-center gap-3">
@@ -120,11 +124,11 @@ export function MatchFooter({
 					<AlertDescription>
 						{disconnected.length > 0
 							? `Waiting for ${disconnected
-								.map(
-									(player) =>
-										nameFor(player.seat) ?? player.name,
-								)
-								.join(", ")} to reconnect.`
+									.map(
+										(player) =>
+											nameFor(player.seat) ?? player.name,
+									)
+									.join(", ")} to reconnect.`
 							: "Waiting for a disconnected player to return."}
 					</AlertDescription>
 				</Alert>
@@ -144,6 +148,30 @@ export function MatchFooter({
 				<p className="text-center text-sm text-muted-foreground">
 					Waiting for {hostName ?? "the host"} to start a rematch.
 				</p>
+			)}
+		</div>
+	);
+}
+
+export function MatchResultActions({
+	isHost,
+	onPlayAgain,
+}: {
+	isHost: boolean;
+	onPlayAgain: () => void;
+}) {
+	return (
+		<div className="flex flex-wrap items-center justify-center gap-2">
+			<Button variant="outline" size="lg" asChild>
+				<Link href="/">
+					<HomeIcon />
+					Home
+				</Link>
+			</Button>
+			{isHost && (
+				<Button variant="secondary" size="lg" onClick={onPlayAgain}>
+					Play Again
+				</Button>
 			)}
 		</div>
 	);

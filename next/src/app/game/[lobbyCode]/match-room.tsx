@@ -1,7 +1,7 @@
 "use client";
 
 import type { ConnectionStage, Seat } from "@maets/game-sync";
-import { GAME_REGISTRY, ticTacToe } from "@maets/games";
+import { GAME_REGISTRY, ticTacToe, ultimateTicTacToe } from "@maets/games";
 import { CircleAlertIcon, Gamepad2Icon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { LobbyCodeHeading } from "@/app/game/[lobbyCode]/lobby-code-heading";
@@ -18,6 +18,7 @@ import {
 	seatColor,
 } from "@/components/game/seat";
 import { TicTacToeView } from "@/components/game/tic-tac-toe";
+import { UltimateTicTacToeView } from "@/components/game/ultimate-tic-tac-toe";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Spinner } from "@/components/ui/spinner";
 import { type MatchPlayer, useMatch } from "@/hooks/useMatch";
@@ -27,6 +28,7 @@ import { gameName } from "@/lib/games";
 
 const GAME_VIEWS: GameViewRegistry = {
 	[ticTacToe.id]: TicTacToeView,
+	[ultimateTicTacToe.id]: UltimateTicTacToeView,
 };
 
 function gameViewFor(gameId: string | null): GameView | undefined {

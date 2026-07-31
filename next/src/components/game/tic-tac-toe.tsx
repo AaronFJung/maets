@@ -1,36 +1,22 @@
 "use client";
 
-import { GameContainer, MatchFooter } from "@/components/game/game-container";
-import type { GameViewProps } from "@/components/game/match-view";
 import {
-	type SeatLabel,
-	seatColor,
-	seatName
-} from "@/components/game/seat";
-import { Button } from "@/components/ui/button";
+	GameContainer,
+	MatchFooter,
+	MatchResultActions,
+} from "@/components/game/game-container";
+import type { GameViewProps } from "@/components/game/match-view";
+import { type SeatLabel, seatColor, seatName } from "@/components/game/seat";
 import { cn } from "@/lib/utils";
 import type { GameResult, Seat } from "@maets/game-sync";
 import { type TttAction, type TttState, ticTacToe } from "@maets/games";
 
 export function TicTacToeView(match: GameViewProps<TttState, TttAction>) {
-	const {
-		state,
-		submit,
-		seat,
-		isHost,
-		phase,
-		players,
-		identityFor,
-		seatLabel,
-		selectGame,
-	} = match;
+	const { state, submit, seat, isHost, phase, seatLabel, selectGame } = match;
 
 	const result = ticTacToe.isOver(state);
 	const myTurn = seat !== null && state.turn === seat;
 	const paused = phase === "paused";
-
-	const seats = players.map((player) => player.seat).sort((a, b) => a - b);
-	const awaiting = result || paused ? null : state.turn;
 
 	return (
 		<GameContainer
@@ -44,14 +30,11 @@ export function TicTacToeView(match: GameViewProps<TttState, TttAction>) {
 			}
 			dimmed={paused}
 			actions={
-				result && isHost ? (
-					<Button
-						variant="secondary"
-						size="lg"
-						onClick={() => selectGame(ticTacToe.id)}
-					>
-						Play Again
-					</Button>
+				result ? (
+					<MatchResultActions
+						isHost={isHost}
+						onPlayAgain={() => selectGame(ticTacToe.id)}
+					/>
 				) : undefined
 			}
 			footer={
@@ -103,6 +86,7 @@ function Board({
 		<div className="grid grid-cols-3 gap-3 w-full aspect-square sm:gap-4">
 			{state.board.map((seat, cell) => (
 				<Cell
+					// biome-ignore lint/suspicious/noArrayIndexKey: cell index is a stable identity on a fixed-size board
 					key={cell}
 					cell={cell}
 					seat={seat}
