@@ -1,7 +1,13 @@
+# Build from the REPOSITORY ROOT — the app's @maets/* deps are sibling
+# workspaces: docker build -f next/Dockerfile .
+
 # 1. Install dependencies
 FROM node:24-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
+COPY next/package.json ./next/
+COPY maets-game-sync/package.json ./maets-game-sync/
+COPY maets-games/package.json ./maets-games/
 RUN npm ci
 
 # 2. Build the app
@@ -19,7 +25,7 @@ ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
 ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 ENV NEXT_TELEMETRY_DISABLED=1
-RUN npm run build
+RUN npm run build --workspace maets
 
 # 3. Minimal runtime image
 FROM node:24-alpine AS runner
@@ -32,12 +38,13 @@ ENV HOSTNAME=0.0.0.0
 RUN addgroup --system --gid 1001 nodejs \
  && adduser --system --uid 1001 nextjs
 
-# standalone bundle = server.js + a pruned node_modules
-COPY --from=builder /app/.next/standalone ./
+# standalone bundle = server.js + a pruned node_modules, nested under next/
+# because the tracing root is the workspace root (see next.config.ts)
+COPY --from=builder /app/next/.next/standalone ./
 # static assets and public/ aren't part of the standalone bundle by default
-COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/public ./public
+COPY --from=builder /app/next/.next/static ./next/.next/static
+COPY --from=builder /app/next/public ./next/public
 
 USER nextjs
 EXPOSE 3000
-CMD ["node", "server.js"]
+CMD ["node", "next/server.js"]

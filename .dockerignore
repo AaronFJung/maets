@@ -1,0 +1,11 @@
+# Matched against the whole workspace: the image builds from the repo root.
+**/node_modules
+**/.next
+.git
+**/npm-debug.log
+**/*.tsbuildinfo
+**/Dockerfile
+.dockerignore
+.devcontainer
+**/.env*.local
+supabase

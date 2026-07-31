@@ -13,5 +13,4 @@ supabase start
 
 # Start the Next.js dev server in the foreground so its logs stream here.
 # App: http://localhost:3000  (VS Code auto-forwards + opens it)
-cd next
 npm run dev

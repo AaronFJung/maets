@@ -1,14 +1,16 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
 import {
 	type ConnectionStage,
+	type GameRegistry,
 	HELLO_MAX_ATTEMPTS,
 	LOG_LIMIT,
 	type LogRow,
 	MaetsMatch,
-} from "@/lib/maets-realtime/maets-match";
-import type { GameRegistry, Seat } from "@/lib/maets-realtime/types";
+	type Seat,
+} from "@maets/game-sync";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 export type { ConnectionStage, LogRow };
 
@@ -54,6 +56,7 @@ export function useMatch<State = unknown, Action = unknown>({
 	want?: "player" | "spectator";
 }) {
 	const resolvedPlayerId = playerId ?? getOrCreatePlayerId();
+	const supabase = useMemo(() => createClient(), []);
 
 	const matchRef = useRef<MaetsMatch | null>(null);
 	const [stage, setStage] = useState<ConnectionStage>("idle");
@@ -73,6 +76,7 @@ export function useMatch<State = unknown, Action = unknown>({
 		if (!code || !resolvedPlayerId || !name) return;
 
 		const match = new MaetsMatch({
+			supabase,
 			code,
 			playerId: resolvedPlayerId,
 			name,
@@ -121,7 +125,7 @@ export function useMatch<State = unknown, Action = unknown>({
 			setLog([]);
 			setFailedAt(undefined);
 		};
-	}, [code, resolvedPlayerId, name, games, want]);
+	}, [supabase, code, resolvedPlayerId, name, games, want]);
 
 	const submit = useCallback((action: Action) => {
 		matchRef.current?.submit(action);

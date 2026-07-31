@@ -9,11 +9,6 @@ export type CurrentProfile = {
 	avatarUrl: string | null;
 };
 
-/**
- * The signed-in user's identity for client components (the realtime game flow).
- * Replaces the old localStorage guest id/username. Routes that use this are
- * behind the auth proxy, so a real profile is expected to resolve.
- */
 export default function useProfile() {
 	const [profile, setProfile] = useState<CurrentProfile>();
 	const [loading, setLoading] = useState(true);

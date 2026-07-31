@@ -1,16 +1,16 @@
 "use client";
 
+import type { Seat } from "@maets/game-sync";
 import { useMemo } from "react";
 import {
 	colorSeatLabel,
 	PlayerTag,
 	type SeatIdentity,
 	type SeatLabel,
-} from "@/components/game/player-tag";
-import { seatColor } from "@/components/game/seat-palette";
+	seatColor,
+} from "@/components/game/seat";
 import type { MatchPlayer } from "@/hooks/useMatch";
 import { useProfiles } from "@/hooks/useProfiles";
-import type { Seat } from "@/lib/maets-realtime/types";
 
 /**
  * Resolves the roster into displayable identities. The roster only carries the

@@ -7,15 +7,10 @@ import { profileUpdateSchema } from "@/lib/auth/schema";
 import { createClient } from "@/lib/supabase/server";
 
 const AVATAR_BUCKET = "avatars";
-// Reject oversized uploads before handing them to sharp.
 const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
 
 export type UpdateProfileResult = { error?: string; success?: boolean };
 
-/**
- * The object path (relative to the bucket) for a public storage URL, or null.
- * e.g. ".../object/public/avatars/<uid>/avatar-123.webp" -> "<uid>/avatar-123.webp"
- */
 function storagePathFromPublicUrl(url: string): string | null {
 	const marker = `/storage/v1/object/public/${AVATAR_BUCKET}/`;
 	const index = url.indexOf(marker);
@@ -23,12 +18,6 @@ function storagePathFromPublicUrl(url: string): string | null {
 	return url.slice(index + marker.length);
 }
 
-/**
- * Updates the current user's username and, optionally, their avatar. All avatar
- * writes happen here (never from the browser): the image is normalized with
- * sharp, stored under a server-generated path in the user's own folder, the
- * profile row is updated, and the previous avatar file is deleted.
- */
 export async function updateProfile(
 	formData: FormData,
 ): Promise<UpdateProfileResult> {
@@ -62,17 +51,16 @@ export async function updateProfile(
 			.select("avatar_url")
 			.eq("id", user.id)
 			.single();
+
 		previousAvatarUrl = current?.avatar_url ?? null;
 
-		// Normalize untrusted input: sharp throws on non-images, and we strip
-		// metadata by re-encoding to a fixed square webp.
 		let processed: Buffer;
 		try {
 			const input = Buffer.from(await file.arrayBuffer());
 			processed = await sharp(input)
 				.rotate() // honor EXIF orientation before metadata is dropped
 				.resize(256, 256, { fit: "cover" })
-				.webp({ quality: 82 })
+				.webp()
 				.toBuffer();
 		} catch {
 			return { error: "That file could not be processed as an image." };
@@ -85,6 +73,7 @@ export async function updateProfile(
 				contentType: "image/webp",
 				upsert: false,
 			});
+
 		if (uploadError) {
 			return { error: "Failed to upload image." };
 		}

@@ -1,38 +1,41 @@
 "use client";
 
+import type { ConnectionStage, Seat } from "@maets/game-sync";
+import { GAME_REGISTRY, ticTacToe } from "@maets/games";
+import { CircleAlertIcon, Gamepad2Icon } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import { LobbyCodeHeading } from "@/app/game/[lobbyCode]/lobby-code-heading";
 import { LobbyView } from "@/app/game/[lobbyCode]/lobby-view";
-import { MatchHeader } from "@/app/game/[lobbyCode]/match-header";
 import { CenteredContent } from "@/components/centered-content";
-import { gameViewFor } from "@/components/game/game-views";
-import { MatchConnection } from "@/components/game/match-connection";
-import { MatchDevSidecar } from "@/components/game/match-dev-sidecar";
-import type { MatchView } from "@/components/game/match-view";
-import { UnsupportedGame } from "@/components/game/unsupported-game";
-import { useDevMenu } from "@/hooks/useDevMenu";
-import { useMatch } from "@/hooks/useMatch";
+import type {
+	GameView,
+	GameViewRegistry,
+	MatchView,
+} from "@/components/game/match-view";
+import {
+	PlayerAvatar,
+	type SeatIdentity,
+	seatColor,
+} from "@/components/game/seat";
+import { TicTacToeView } from "@/components/game/tic-tac-toe";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Spinner } from "@/components/ui/spinner";
+import { type MatchPlayer, useMatch } from "@/hooks/useMatch";
 import useProfile from "@/hooks/useProfile";
 import { useSeatIdentities } from "@/hooks/useSeatIdentities";
-import { GAME_REGISTRY } from "@/lib/maets-realtime/games/registry";
+import { gameName } from "@/lib/games";
 
-/**
- * Everything at `/game/<code>`: resolves who you are, runs the match, and picks
- * the screen for whatever the room is currently doing. It holds no game
- * knowledge — boards come from `GAME_VIEWS`, keyed by the room's active game.
- */
-export default function MatchRoom({
-	lobbyCode,
-	hostGameId,
-}: {
-	lobbyCode: string;
-	/** The game the host picked, carried on `?game=` (see `host-game-card.tsx`).
-	 * Absent for joiners — §12.7 has no lobby-phase "intended game" yet. */
-	hostGameId?: string;
-}) {
+const GAME_VIEWS: GameViewRegistry = {
+	[ticTacToe.id]: TicTacToeView,
+};
+
+function gameViewFor(gameId: string | null): GameView | undefined {
+	return gameId ? GAME_VIEWS[gameId] : undefined;
+}
+
+export default function MatchRoom({ lobbyCode }: { lobbyCode: string }) {
 	const { profile, loading } = useProfile();
-	const [devMenuEnabled] = useDevMenu();
 
-	// No type arguments: the room can't know which game's state is live, so it
-	// stays at `unknown` and the registry hands it to a view that does know.
 	const match = useMatch({
 		code: lobbyCode,
 		games: GAME_REGISTRY,
@@ -60,41 +63,37 @@ export default function MatchRoom({
 		selectGame: match.selectGame,
 	};
 
-	// The routes are behind the auth proxy, so this is a fallback rather than an
-	// expected state — but without it a signed-out visitor would sit on the
-	// identity step forever with nothing explaining why.
 	const identityError =
 		!loading && !profile
 			? "You're not signed in, so there's no identity to join with. Sign in and try again."
 			: undefined;
 
-	// The host has it from the URL; everyone else can only know it once a game
-	// has actually been selected, which also covers the lobby a finished match
-	// drops back to.
-	const roomGameId = hostGameId ?? activeGameId ?? undefined;
+	const roomGameId = activeGameId ?? undefined;
 	const GameView = gameViewFor(activeGameId);
 
 	let body: React.ReactNode;
-	// The strip exists because the board has no room for the code or the roster.
-	// The lobby is nothing *but* those, at full size, so showing both puts the code
-	// on screen twice and every player's name twice.
-	let showHeader = true;
+	// The compact header only makes sense once a game is actually on screen —
+	// every other state already shows the lobby code as its own big heading,
+	// so a second copy above it would just repeat itself.
+	let showHeader = false;
 
 	if (stage !== "ready" || error || identityError) {
-		// Every pre-join state, including failure, is narrated by the same
-		// stepper: a stall is then attributable to a specific step rather than
-		// leaving an undifferentiated "Connecting…" on screen.
-		body = <MatchConnection stage={stage} error={error ?? identityError} />;
+		body = (
+			<MatchConnection
+				lobbyCode={lobbyCode}
+				stage={stage}
+				error={error ?? identityError}
+			/>
+		);
 	} else if (phase === "lobby") {
 		body = (
 			<LobbyView lobbyCode={lobbyCode} gameId={roomGameId} match={view} />
 		);
-		showHeader = false;
 	} else if (GameView && match.state !== undefined) {
 		body = <GameView {...view} state={match.state} submit={match.submit} />;
+		showHeader = true;
 	} else if (GameView) {
-		// Known game, state not here yet — a sync gap, not a version problem.
-		body = <MatchConnection stage="syncing" />;
+		body = <MatchConnection lobbyCode={lobbyCode} stage="syncing" />;
 	} else {
 		body = (
 			<UnsupportedGame
@@ -107,8 +106,8 @@ export default function MatchRoom({
 	return (
 		<>
 			{showHeader && (
-				<div className="w-full pt-4 pb-6">
-					<CenteredContent>
+				<div className="w-full pt-4">
+					<CenteredContent width="narrow">
 						<MatchHeader
 							lobbyCode={lobbyCode}
 							players={players}
@@ -118,11 +117,140 @@ export default function MatchRoom({
 				</div>
 			)}
 
-			<CenteredContent>{body}</CenteredContent>
-
-			{devMenuEnabled && stage === "ready" && (
-				<MatchDevSidecar match={match} />
-			)}
+			<CenteredContent width="narrow" className="flex flex-1 flex-col">
+				<div className="my-auto w-full py-8">{body}</div>
+			</CenteredContent>
 		</>
+	);
+}
+
+function MatchHeader({
+	lobbyCode,
+	players,
+	identityFor,
+}: {
+	lobbyCode: string;
+	players: readonly MatchPlayer[];
+	identityFor: (seat: Seat) => SeatIdentity | undefined;
+}) {
+	return (
+		<div className="flex items-center justify-between gap-4 border-b pb-3">
+			<p className="flex items-baseline gap-2">
+				<span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+					Lobby
+				</span>
+				<span className="font-mono text-sm font-bold tracking-[0.15em]">
+					{lobbyCode}
+				</span>
+			</p>
+
+			<div className="flex items-center gap-1.5">
+				{players.map((player) => {
+					const identity = identityFor(player.seat);
+					const name = identity?.name ?? player.name;
+
+					return (
+						<span key={player.seat} title={name}>
+							<PlayerAvatar
+								size="sm"
+								name={name}
+								avatarUrl={identity?.avatarUrl}
+								connected={player.connected}
+								color={seatColor(player.seat)}
+							/>
+						</span>
+					);
+				})}
+			</div>
+		</div>
+	);
+}
+
+function getStageText(stage: ConnectionStage): string {
+	switch (stage) {
+		case "idle":
+			return "Identifying you...";
+		case "subscribing":
+			return "Opening Realtime Channel...";
+		case "announcing":
+			return "Announcing Presence...";
+		case "handshaking":
+			return "Handshaking with the Host...";
+		case "creating":
+			return "Creating the Match...";
+		case "syncing":
+			return "Syncing Match State...";
+		case "ready":
+			return "Connected";
+		default:
+			return "Connecting...";
+	}
+}
+
+function MatchConnection({
+	lobbyCode,
+	stage,
+	error,
+}: {
+	lobbyCode: string;
+	stage: ConnectionStage;
+	error?: string;
+}) {
+	const statusText = getStageText(stage);
+
+	return (
+		<div className="flex flex-col items-center gap-8 text-center">
+			<LobbyCodeHeading code={lobbyCode} align="center" />
+
+			{error ? (
+				<Alert
+					variant="destructive"
+					className="mx-auto max-w-md text-left"
+				>
+					<CircleAlertIcon />
+					<AlertTitle>Can't connect</AlertTitle>
+					<AlertDescription>{error}</AlertDescription>
+				</Alert>
+			) : (
+				<div className="flex items-center gap-2.5 text-base font-medium text-muted-foreground">
+					<Spinner />
+					<AnimatePresence mode="popLayout">
+						<motion.p
+							key={statusText}
+							initial={{ y: 10, opacity: 0 }}
+							animate={{ y: 0, opacity: 1 }}
+							exit={{ y: -10, opacity: 0 }}
+							transition={{ duration: 0.2, ease: "easeInOut" }}
+						>
+							{statusText}
+						</motion.p>
+					</AnimatePresence>
+				</div>
+			)}
+		</div>
+	);
+}
+
+function UnsupportedGame({
+	lobbyCode,
+	activeGameId,
+}: {
+	lobbyCode: string;
+	activeGameId: string | null;
+}) {
+	return (
+		<div className="flex flex-col items-center gap-8 text-center">
+			<LobbyCodeHeading code={lobbyCode} align="center" />
+
+			<Alert variant="destructive" className="mx-auto max-w-md text-left">
+				<Gamepad2Icon />
+				<AlertTitle>This client can't play that game</AlertTitle>
+				<AlertDescription>
+					The room is playing{" "}
+					{activeGameId ? gameName(activeGameId) : "an unknown game"},
+					which this version of Maets doesn't know how to render.
+				</AlertDescription>
+			</Alert>
+		</div>
 	);
 }

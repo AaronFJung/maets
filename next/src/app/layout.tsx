@@ -1,20 +1,13 @@
 import { CenteredContent } from "@/components/centered-content";
-import { MobileNav } from "@/components/mobile-nav";
 import NavigationProfileCard from "@/components/nav-profile-card";
 import { ThemeProvider } from "@/components/theme-provider";
-import {
-	NavigationMenu,
-	NavigationMenuItem,
-	NavigationMenuLink,
-	NavigationMenuList,
-	navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu";
 import { Separator } from "@/components/ui/separator";
-import { NAV_LINKS } from "@/lib/nav-links";
 import type { Metadata } from "next";
 import { Merriweather, Montserrat, Ubuntu_Mono } from "next/font/google";
+import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
+import maetsLogo from "../../public/maets-logo.png";
 import "./globals.css";
 
 const montserrat = Montserrat({
@@ -51,11 +44,12 @@ export default function RootLayout({
 			<body className="min-h-full flex flex-col">
 				<ThemeProvider
 					attribute="class"
-					defaultTheme="system"
-					enableSystem
+					defaultTheme="light"
+					forcedTheme="light"
+					enableSystem={false}
 					disableTransitionOnChange
 				>
-					<div className="bg-accent">
+					<div className="">
 						<CenteredContent>
 							<Navigation />
 						</CenteredContent>
@@ -70,47 +64,31 @@ export default function RootLayout({
 	);
 }
 
+/**
+ * Just the logo, centred, doubling as the link home. The profile control is
+ * absolutely positioned so it never pulls the logo off centre — everything else
+ * that used to live up here now sits on the home page.
+ */
 function Navigation() {
 	return (
-		<header className="flex items-center justify-between py-4 bg-accent">
-			<div className="flex items-center gap-2.5">
-				<Link
-					href="/"
-					className="text-xl font-bold tracking-tight transition-colors hover:text-primary text-accent-foreground"
-				>
-					Maets
-				</Link>
+		<header className="relative flex items-center justify-center py-7">
+			<Link
+				href="/"
+				aria-label="Maets home"
+				className="transition-opacity hover:opacity-80"
+			>
+				<Image
+					src={maetsLogo}
+					alt="Maets"
+					priority
+					className="h-7 w-auto"
+				/>
+			</Link>
 
-				<NavigationMenu className="hidden md:flex">
-					<NavigationMenuList>
-						{NAV_LINKS.map((link) => (
-							<NavigationMenuItem key={link.href}>
-								<NavigationMenuLink
-									asChild
-									className={navigationMenuTriggerStyle()}
-								>
-									<Link
-										href={link.href}
-										className="text-accent-foreground"
-									>
-										<link.icon className="size-4" />
-										{link.label}
-									</Link>
-								</NavigationMenuLink>
-							</NavigationMenuItem>
-						))}
-					</NavigationMenuList>
-				</NavigationMenu>
-
-				{/* <SettingsMenu /> */}
-			</div>
-
-			<div className="flex items-center gap-2">
+			<div className="absolute right-0 flex items-center">
 				<Suspense>
 					<NavigationProfileCard />
 				</Suspense>
-
-				<MobileNav />
 			</div>
 		</header>
 	);

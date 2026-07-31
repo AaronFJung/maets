@@ -2,7 +2,16 @@
 	"name": "maets-root",
 	"version": "0.1.0-alpha.0",
 	"private": true,
+	"workspaces": [
+		"next",
+		"maets-game-sync",
+		"maets-games"
+	],
 	"scripts": {
+		"dev": "npm run dev --workspace maets",
+		"build": "npm run build --workspace maets",
+		"start": "npm run start --workspace maets",
+		"typecheck": "npm run typecheck --workspaces --if-present",
 		"lint": "biome lint .",
 		"format": "biome format --write .",
 		"check": "biome check .",

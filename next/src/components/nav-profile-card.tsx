@@ -4,7 +4,6 @@ import { initials } from "@/lib/initials";
 import { UserIcon } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { Button } from "./ui/button";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -18,23 +17,24 @@ export default async function NavigationProfileCard() {
 	const profile = await getProfile();
 
 	if (!profile) {
-		return (
-			<Button asChild variant="outline" size="sm">
-				<Link href="/login">Log in</Link>
-			</Button>
-		);
+		return <></>;
+		// return (
+		// 	<Button asChild variant="outline" size="sm">
+		// 		<Link href="/login">Log in</Link>
+		// 	</Button>
+		// );
 	}
 
 	const short = initials(profile.username);
 
 	return (
 		<DropdownMenu>
-			<DropdownMenuTrigger className="flex items-center gap-3 rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/50">
-				<span className="hidden max-w-32 truncate font-medium text-sm sm:block">
+			<DropdownMenuTrigger className="flex items-center gap-4 outline-none focus-visible:ring-3 focus-visible:ring-ring/50">
+				<span className="hidden max-w-32 truncate text-sm font-medium sm:block">
 					{profile.username}
 				</span>
 
-				<Avatar>
+				<Avatar className="size-9">
 					{profile.avatarUrl && (
 						<AvatarImage
 							src={profile.avatarUrl}

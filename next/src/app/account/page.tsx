@@ -1,6 +1,6 @@
+import { redirect } from "next/navigation";
 import { PageTitle } from "@/components/page-title";
 import { getProfile } from "@/lib/auth/dal";
-import { redirect } from "next/navigation";
 import AccountForm from "./account-form";
 
 export default async function AccountPage() {

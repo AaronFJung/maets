@@ -1,0 +1,26 @@
+{
+	"name": "@maets/game-sync",
+	"version": "0.1.0",
+	"private": true,
+	"description": "Game-agnostic protocol and runtime for online turn-based matches over a Supabase Realtime channel.",
+	"type": "module",
+	"main": "./src/index.ts",
+	"types": "./src/index.ts",
+	"exports": {
+		".": "./src/index.ts"
+	},
+	"files": [
+		"src",
+		"README.md"
+	],
+	"scripts": {
+		"typecheck": "tsc --noEmit"
+	},
+	"peerDependencies": {
+		"@supabase/supabase-js": "^2.110.3",
+		"zod": "^4.4.3"
+	},
+	"devDependencies": {
+		"typescript": "^6"
+	}
+}

@@ -67,7 +67,13 @@ for each row
 execute function public.handle_new_user();
 
 -- ---------------------------------------------------------------------------
--- avatar storage policies (bucket "avatars" is declared in supabase/config.toml)
+-- avatar storage: bucket + policies
+--
+-- The bucket is created here rather than via [storage.buckets.avatars] in
+-- config.toml, because that declaration is only materialised by
+-- `supabase seed buckets` / `supabase db reset` -- never by a plain
+-- `supabase start` (what .devcontainer/post-start.sh runs) and never by
+-- `supabase db push` against a hosted project.
 --
 -- Objects live at avatars/<user-id>/avatar-<timestamp>.webp. A user may only
 -- read or write within their own <user-id> folder.
@@ -79,6 +85,17 @@ execute function public.handle_new_user();
 -- anyone -- including anon, since a policy without a `to` clause applies to
 -- every role -- enumerate every user's id and avatar history via list().
 -- ---------------------------------------------------------------------------
+
+-- Keep these values in sync with MAX_UPLOAD_BYTES / the accepted MIME types in
+-- next/src/app/account/actions.ts.
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values (
+    'avatars',
+    'avatars',
+    true,
+    5 * 1024 * 1024,
+    array['image/png', 'image/jpeg', 'image/webp', 'image/gif']
+);
 
 create policy "Users can read their own avatar objects"
 on storage.objects

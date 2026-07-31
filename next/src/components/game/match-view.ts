@@ -1,7 +1,6 @@
-import type { SeatIdentity, SeatLabel } from "@/components/game/player-tag";
+import type { MatchPhase, Seat } from "@maets/game-sync";
+import type { SeatIdentity, SeatLabel } from "@/components/game/seat";
 import type { MatchPlayer } from "@/hooks/useMatch";
-import type { MatchPhase } from "@/lib/maets-realtime/protocol";
-import type { Seat } from "@/lib/maets-realtime/types";
 
 /**
  * The room-level projection of `useMatch` that every match-aware view sees.
@@ -45,7 +44,7 @@ export type GameView<State = unknown, Action = unknown> = React.ComponentType<
  * supertype, so the registry is heterogeneous. `any` is bidirectionally
  * assignable, which means a typed view registers without a cast *and* renders
  * against the room's `unknown` state without one — containing the unsoundness
- * to this single token. Mirrors `GameRegistry` in maets-realtime/types.ts.
+ * to this single token. Mirrors `GameRegistry` in `@maets/game-sync`.
  */
 // biome-ignore lint/suspicious/noExplicitAny: see above — one `any` here beats a cast per game
 export type GameViewRegistry = Record<string, GameView<any, any>>;

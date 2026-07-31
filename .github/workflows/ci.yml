@@ -1,54 +1,79 @@
 name: CI
 
 on:
-    push:
-        branches: [main]
-    pull_request:
-        branches: [main]
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
-    build:
-        name: Build (Next.JS)
-        runs-on: ubuntu-latest
-        defaults:
-            run:
-                working-directory: next
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v7
+  packages:
+    name: Typecheck (@maets/${{ matrix.package }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        package: [game-sync, games]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
 
-            - name: Set up Node.js
-              uses: actions/setup-node@v6
-              with:
-                  node-version: "24"
-                  cache: "npm"
-                  cache-dependency-path: next/package-lock.json
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: "npm"
+          cache-dependency-path: package-lock.json
 
-            - name: Install dependencies
-              run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-            - name: Build
-              run: npm run build
-              env:
-                  NEXT_PUBLIC_SUPABASE_URL: "https://placeholder.supabase.co"
-                  NEXT_PUBLIC_SUPABASE_ANON_KEY: "placeholder-anon-key"
+      - name: Typecheck
+        run: npm run typecheck --workspace @maets/${{ matrix.package }}
 
-    lint:
-        name: Lint (Biome)
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v7
+  build:
+    name: Build (Next.JS)
+    runs-on: ubuntu-latest
+    needs: packages
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
 
-            - name: Set up Node.js
-              uses: actions/setup-node@v6
-              with:
-                  node-version: "24"
-                  cache: "npm"
-                  cache-dependency-path: package-lock.json
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: "npm"
+          cache-dependency-path: package-lock.json
 
-            - name: Install dependencies
-              run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-            - name: Lint
-              run: npm run lint
+      - name: Typecheck
+        run: npm run typecheck --workspace maets
+
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: "https://placeholder.supabase.co"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "placeholder-anon-key"
+
+  lint:
+    name: Lint (Biome)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: "npm"
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint

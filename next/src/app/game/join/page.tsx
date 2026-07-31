@@ -16,9 +16,9 @@ import {
 	InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { Spinner } from "@/components/ui/spinner";
+import { useLobby } from "@/hooks/useLobby";
 import useProfile from "@/hooks/useProfile";
-import { CODE_LENGTH } from "@/lib/maets-realtime/lobby-code";
-import { useLobby } from "@/lib/maets-realtime/maets-realtime";
+import { CODE_LENGTH } from "@maets/game-sync";
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
 import { AnimatePresence, motion } from "motion/react";
 import { useRouter } from "next/navigation";
@@ -124,8 +124,8 @@ export default function Page() {
 									<InputOTPSlot index={1} />
 									<InputOTPSlot index={2} />
 									<InputOTPSlot index={3} />
-									<InputOTPSlot index={4} />
-									<InputOTPSlot index={5} />
+									{/* <InputOTPSlot index={4} /> */}
+									{/* <InputOTPSlot index={5} /> */}
 								</InputOTPGroup>
 							</InputOTP>
 							<AnimatePresence>

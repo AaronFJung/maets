@@ -9,8 +9,12 @@ This repository currently contains the project's development environment and ini
 | Directory | Description |
 | ---------- | ----------- |
 | `next/` | Next.js frontend built with TypeScript, Tailwind CSS, and shadcn/ui |
+| `maets-game-sync/` | `@maets/game-sync` — the turn-based match protocol and its runtime ([spec](maets-game-sync/README.md)) |
+| `maets-games/` | `@maets/games` — game plugins (pure rules, no UI) and the registry that indexes them |
 | `supabase/` | Local Supabase backend (Postgres, Auth, Realtime, and migrations) |
 | `.devcontainer/` | Development container configuration |
+
+The three code folders are [npm workspaces](https://docs.npmjs.com/cli/using-npm/workspaces), so one `npm ci` at the repo root installs everything.
 
 ## Getting Started
 
