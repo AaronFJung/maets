@@ -2,11 +2,7 @@
 
 import { GameContainer, MatchFooter } from "@/components/game/game-container";
 import type { GameViewProps } from "@/components/game/match-view";
-import {
-	type SeatLabel,
-	seatColor,
-	seatName
-} from "@/components/game/seat";
+import { type SeatLabel, seatColor, seatName } from "@/components/game/seat";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { GameResult, Seat } from "@maets/game-sync";
@@ -103,6 +99,7 @@ function Board({
 		<div className="grid grid-cols-3 gap-3 w-full aspect-square sm:gap-4">
 			{state.board.map((seat, cell) => (
 				<Cell
+					// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
 					key={cell}
 					cell={cell}
 					seat={seat}
