@@ -17,12 +17,22 @@ export default async function NavigationProfileCard() {
 	const profile = await getProfile();
 
 	if (!profile) {
-		return <></>;
-		// return (
-		// 	<Button asChild variant="outline" size="sm">
-		// 		<Link href="/login">Log in</Link>
-		// 	</Button>
-		// );
+		return (
+			<Link
+				href="/login"
+				className="flex items-center gap-4 outline-none transition-opacity hover:opacity-80 focus-visible:ring-3 focus-visible:ring-ring/50"
+			>
+				<span className="hidden text-sm font-medium text-muted-foreground sm:block">
+					Log in
+				</span>
+
+				<Avatar className="size-9">
+					<AvatarFallback>
+						<UserIcon className="size-4" />
+					</AvatarFallback>
+				</Avatar>
+			</Link>
+		);
 	}
 
 	const short = initials(profile.username);

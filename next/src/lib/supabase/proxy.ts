@@ -2,11 +2,16 @@ import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 
 const AUTH_ROUTES = ["/login", "/signup"];
+const PUBLIC_ROUTES = ["/"];
 
 function isAuthRoute(pathname: string) {
 	return AUTH_ROUTES.some(
 		(route) => pathname === route || pathname.startsWith(`${route}/`),
 	);
+}
+
+function isPublicRoute(pathname: string) {
+	return PUBLIC_ROUTES.includes(pathname);
 }
 
 export async function updateSession(request: NextRequest) {
@@ -41,7 +46,7 @@ export async function updateSession(request: NextRequest) {
 
 	const { pathname } = request.nextUrl;
 
-	if (!user && !isAuthRoute(pathname)) {
+	if (!user && !isAuthRoute(pathname) && !isPublicRoute(pathname)) {
 		const url = request.nextUrl.clone();
 		url.pathname = "/login";
 		return NextResponse.redirect(url);
