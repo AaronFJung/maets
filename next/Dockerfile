@@ -47,10 +47,16 @@ RUN addgroup --system --gid 1001 nodejs \
 
 # standalone bundle = server.js + a pruned node_modules, nested under next/
 # because the tracing root is the workspace root (see next.config.ts)
-COPY --from=builder /app/next/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/next/.next/standalone ./
 # static assets and public/ aren't part of the standalone bundle by default
-COPY --from=builder /app/next/.next/static ./next/.next/static
-COPY --from=builder /app/next/public ./next/public
+COPY --from=builder --chown=nextjs:nodejs /app/next/.next/static ./next/.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/next/public ./next/public
+
+# The image optimizer writes optimized variants under .next/cache/images at
+# request time. COPY lands as root by default, so without this the server runs
+# as nextjs against a root-owned tree and every optimization dies with
+# EACCES mkdir — which surfaces as an unhandled rejection, not a soft cache miss.
+RUN mkdir -p next/.next/cache && chown -R nextjs:nodejs next/.next/cache
 
 # On musl, sharp splits across two packages: @img/sharp-linuxmusl-<arch> holds
 # the .node binary and @img/sharp-libvips-linuxmusl-<arch> holds libvips-cpp.so.
