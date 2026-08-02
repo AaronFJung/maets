@@ -109,6 +109,9 @@ export default function Page() {
 								id="lobby-code"
 								maxLength={CODE_LENGTH}
 								pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
+								inputMode="text"
+								autoComplete="off"
+								autoCapitalize="characters"
 								value={code}
 								disabled={isChecking}
 								onChange={(value) => {
@@ -124,8 +127,6 @@ export default function Page() {
 									<InputOTPSlot index={1} />
 									<InputOTPSlot index={2} />
 									<InputOTPSlot index={3} />
-									{/* <InputOTPSlot index={4} /> */}
-									{/* <InputOTPSlot index={5} /> */}
 								</InputOTPGroup>
 							</InputOTP>
 							<AnimatePresence>
