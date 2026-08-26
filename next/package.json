@@ -11,7 +11,7 @@
 		"format": "biome format --write ."
 	},
 	"dependencies": {
-		"@hookform/resolvers": "^5.7.1",
+		"@hookform/resolvers": "^5.9.1",
 		"@maets/game-sync": "*",
 		"@maets/games": "*",
 		"@supabase/ssr": "^0.12.3",
