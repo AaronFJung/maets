@@ -14,7 +14,7 @@
 		"@hookform/resolvers": "^5.9.1",
 		"@maets/game-sync": "*",
 		"@maets/games": "*",
-		"@supabase/ssr": "^0.12.3",
+		"@supabase/ssr": "^0.12.5",
 		"@supabase/supabase-js": "^2.110.3",
 		"class-variance-authority": "^0.7.1",
 		"classnames": "^2.5.1",
