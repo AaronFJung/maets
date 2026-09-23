@@ -19,7 +19,7 @@
 		"@maets/game-sync": "*"
 	},
 	"peerDependencies": {
-		"zod": "^4.6.4"
+		"zod": "^4.6.5"
 	},
 	"devDependencies": {
 		"typescript": "^6"
