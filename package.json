@@ -24,6 +24,6 @@
 		"release:finalize": "npm version patch"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.5.6"
+		"@biomejs/biome": "2.5.15"
 	}
 }
